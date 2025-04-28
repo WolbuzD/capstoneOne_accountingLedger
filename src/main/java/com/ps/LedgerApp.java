@@ -167,6 +167,56 @@ public class LedgerApp {
     }
 
     private static void showReportsScreen() {
+        String choice;
+        do {
+            System.out.println("\n--- Reports Menu ---");
+            System.out.println("1) Month To Date");
+            System.out.println("2) Previous Month");
+            System.out.println("3) Year To Date");
+            System.out.println("4) Previous Year");
+            System.out.println("5) Search by Vendor");
+            System.out.println("0) Back");
+            System.out.print("Choose an option: ");
+            choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    reportMonthToDate();
+                    break;
+                case "2":
+                    reportPreviousMonth();
+                    break;
+                case "3":
+                    reportYearToDate();
+                    break;
+                case "4":
+                    reportPreviousYear();
+                    break;
+                case "5":
+                    searchByVendor();
+                    break;
+                case "0":
+                    // Go back
+                    break;
+                default:
+                    System.out.println("Invalid option. Try again.");
+            }
+        } while (!choice.equals("0"));
+    }
+
+    private static void reportMonthToDate() {
+    }
+
+    private static void reportPreviousMonth() {
+    }
+
+    private static void reportYearToDate() {
+    }
+
+    private static void reportPreviousYear() {
+    }
+
+    private static void searchByVendor() {
     }
 
     private static void loadTransactions() {
