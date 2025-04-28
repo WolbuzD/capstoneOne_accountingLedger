@@ -205,18 +205,89 @@ public class LedgerApp {
     }
 
     private static void reportMonthToDate() {
+        LocalDate today = LocalDate.now();
+        LocalDate start = today.withDayOfMonth(1);
+        boolean found = false;
+
+        for (Transaction transaction : transactions) {
+            LocalDate date = LocalDate.parse(transaction.getDate());
+            if (!date.isBefore(start)) {
+                System.out.println(transaction);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No transactions for this month.");
+        }
     }
 
     private static void reportPreviousMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate firstDay = today.minusMonths(1).withDayOfMonth(1);
+        LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
+        boolean found = false;
+
+        for (Transaction transaction : transactions) {
+            LocalDate date = LocalDate.parse(transaction.getDate());
+            if (!date.isBefore(firstDay) && !date.isAfter(lastDay)) {
+                System.out.println(transaction);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No transactions for this period.");
+        }
     }
 
     private static void reportYearToDate() {
+        LocalDate today = LocalDate.now();
+        LocalDate start = today.withDayOfYear(1);
+        boolean found = false;
+
+        for (Transaction transaction : transactions) {
+            LocalDate date = LocalDate.parse(transaction.getDate());
+            if (!date.isBefore(start)) {
+                System.out.println(transaction);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No transactions for this period.");
+        }
     }
 
     private static void reportPreviousYear() {
+        LocalDate today = LocalDate.now();
+        LocalDate firstDay = today.minusYears(1).withDayOfYear(1);
+        LocalDate lastDay = firstDay.withDayOfYear(firstDay.lengthOfYear());
+        boolean found = false;
+
+        for (Transaction transaction : transactions) {
+            LocalDate date = LocalDate.parse(transaction.getDate());
+            if (!date.isBefore(firstDay) && !date.isAfter(lastDay)) {
+                System.out.println(transaction);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No transactions for this period.");
+        }
     }
 
     private static void searchByVendor() {
+        System.out.print("Enter vendor name: ");
+        String vendorInput = scanner.nextLine();
+        boolean found = false;
+
+        for (Transaction transaction : transactions) {
+            if (transaction.getVendor().equalsIgnoreCase(vendorInput)) {
+                System.out.println(transaction);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No transactions found for this vendor.");
+        }
     }
 
     private static void loadTransactions() {
