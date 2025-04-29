@@ -32,6 +32,15 @@ public class LedgerApp {
              case "L":
                  showLedgerScreen();
                  break;
+             case "E":
+                 editTransaction();
+                 break;
+             case "DEL":
+                 deleteTransaction();
+                 break;
+             case "S":
+                 summaryReport();
+                 break;
              case "X":
                  System.out.println("Exiting. Thank you!");
                  break;
@@ -44,6 +53,7 @@ public class LedgerApp {
      
 
     }
+
 
     private static void showHomeScreen() {
         System.out.println("\n---Home Screen---");
@@ -107,6 +117,14 @@ public class LedgerApp {
         } catch (IOException e) {
             System.out.println("Error Saving transaction: " + e.getMessage());
         }
+    }
+
+    private static void editTransaction() {
+    }
+
+    private static void deleteTransaction() {
+    }
+    private static void summaryReport() {
     }
 
     private static void showLedgerScreen() {
