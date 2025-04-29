@@ -182,8 +182,48 @@ public class LedgerApp {
 
 
     private static void deleteTransaction() {
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions to delete.");
+            return;
+        }
+
+        System.out.println("\n--- Delete Transaction ---");
+        for (int i = 0; i < transactions.size(); i++) {
+            System.out.println((i + 1) + ") " + transactions.get(i));
+        }
+
+        System.out.print("Enter the number of the transaction to delete: ");
+        int choice = Integer.parseInt(scanner.nextLine());
+
+        if (choice < 1 || choice > transactions.size()) {
+            System.out.println("Invalid choice.");
+            return;
+        }
+
+        transactions.remove(choice - 1);
+        saveAllTransactions();
+        System.out.println("Transaction deleted successfully.");
     }
+
+
     private static void summaryReport() {
+        double totalDeposits = 0;
+        double totalPayments = 0;
+        double balance = 0;
+
+        for (Transaction transaction : transactions) {
+            if (transaction.getAmount() > 0) {
+                totalDeposits += transaction.getAmount();
+            } else {
+                totalPayments += transaction.getAmount();
+            }
+            balance += transaction.getAmount();
+        }
+
+        System.out.println("\n--- Summary Report ---");
+        System.out.printf("Total Deposits: $%.2f\n", totalDeposits);
+        System.out.printf("Total Payments: $%.2f\n", Math.abs(totalPayments));
+        System.out.printf("Current Balance: $%.2f\n", balance);
     }
 
     private static void showLedgerScreen() {
