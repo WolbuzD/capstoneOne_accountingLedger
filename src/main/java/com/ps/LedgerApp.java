@@ -60,6 +60,9 @@ public class LedgerApp {
         System.out.println("D) Add Deposit");
         System.out.println("P) Make Payment(Debit)");
         System.out.println("L) Ledger");
+        System.out.println("E) Edit a Transaction");
+        System.out.println("DEL) Delete a Transaction");
+        System.out.println("S) Summary Report");
         System.out.println("X) Exit");
         System.out.print("Choose an option: ");
     }
@@ -119,8 +122,64 @@ public class LedgerApp {
         }
     }
 
-    private static void editTransaction() {
+    private static void saveAllTransactions() {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
+            for (Transaction t : transactions) {
+                writer.write(t.getDate() + "|" + t.getTime() + "|" +
+                        t.getDescription() + "|" + t.getVendor() + "|" +
+                        t.getAmount());
+                writer.newLine();
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Error saving transactions: " + e.getMessage());
+        }
     }
+
+    private static void editTransaction() {
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions to edit.");
+            return;
+        }
+
+        System.out.println("\n--- Edit Transaction ---");
+        for (int i = 0; i < transactions.size(); i++) {
+            System.out.println((i + 1) + ") " + transactions.get(i));
+        }
+
+        System.out.print("Enter the number of the transaction to edit: ");
+        int choice = Integer.parseInt(scanner.nextLine());
+
+        if (choice < 1 || choice > transactions.size()) {
+            System.out.println("Invalid choice.");
+            return;
+        }
+
+        Transaction transaction = transactions.get(choice - 1);
+
+        System.out.println("Enter new description (leave blank to keep current): ");
+        String newDescription = scanner.nextLine();
+        if (!newDescription.isEmpty()) {
+            transaction.setDescription(newDescription);
+        }
+
+        System.out.println("Enter new vendor (leave blank to keep current): ");
+        String newVendor = scanner.nextLine();
+        if (!newVendor.isEmpty()) {
+            transaction.setVendor(newVendor);
+        }
+
+        System.out.println("Enter new amount (leave blank to keep current): ");
+        String newAmount = scanner.nextLine();
+        if (!newAmount.isEmpty()) {
+            transaction.setAmount(Double.parseDouble(newAmount));
+        }
+
+        saveAllTransactions();
+        System.out.println("Transaction updated successfully.");
+    }
+
 
     private static void deleteTransaction() {
     }
