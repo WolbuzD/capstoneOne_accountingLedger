@@ -14,51 +14,46 @@ public class LedgerApp {
     static ArrayList<Transaction> transactions = new ArrayList<>();
 
     public static void main(String[] args) {
-     loadTransactions();
+        loadTransactions();
 
-     String choice;
+        String choice;
+        do {
+            showHomeScreen();
+            choice = scanner.nextLine().toUpperCase();
 
-     do{
-     showHomeScreen();
-     choice = scanner.nextLine().toUpperCase();
-     
-         switch (choice) {
-             case "D":
-                 addDeposit();
-                 break;
-             case "P":
-                 makePayment();
-                 break;
-             case "L":
-                 showLedgerScreen();
-                 break;
-             case "E":
-                 editTransaction();
-                 break;
-             case "DEL":
-                 deleteTransaction();
-                 break;
-             case "S":
-                 summaryReport();
-                 break;
-             case "X":
-                 System.out.println("Exiting. Thank you!");
-                 break;
-             default:
-                 System.out.println("Invalid option. Try again.");
-         }
+            switch (choice) {
+                case "D":
+                    addDeposit();
+                    break;
+                case "P":
+                    makePayment();
+                    break;
+                case "L":
+                    displayLedgerScreen();
+                    break;
+                case "E":
+                    editTransaction();
+                    break;
+                case "DEL":
+                    deleteTransaction();
+                    break;
+                case "S":
+                    summaryReport();
+                    break;
+                case "X":
+                    System.out.println("Exiting. Thank you!");
+                    break;
+                default:
+                    System.out.println("Invalid Input! Try again.");
+            }
 
-
-     }while(!choice.equalsIgnoreCase("X"));
-     
-
+        } while (!choice.equals("X"));
     }
 
-
     private static void showHomeScreen() {
-        System.out.println("\n---Home Screen---");
+        System.out.println("\n---- Home Screen ----");
         System.out.println("D) Add Deposit");
-        System.out.println("P) Make Payment(Debit)");
+        System.out.println("P) Make a Payment (Debit)");
         System.out.println("L) Ledger");
         System.out.println("E) Edit a Transaction");
         System.out.println("DEL) Delete a Transaction");
@@ -78,47 +73,38 @@ public class LedgerApp {
         currentTransaction = createTransaction(false);
         saveTransaction();
         transactions.add(currentTransaction);
-        System.out.println("Deposit added successfully!");
+        System.out.println("Payment made successfully!");
     }
 
-
-
     private static Transaction createTransaction(boolean isDeposit) {
-        //I want to pass in a boolean that checks if it's a Deposit/debit
-    //--- we need the date and time of the transaction, and prompt the user to add all the other infos
         LocalDateTime now = LocalDateTime.now();
         String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String time = now.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
-        System.out.print("Enter a description: ");
+        System.out.println("Enter description: ");
         String description = scanner.nextLine();
-
-        System.out.print("Enter a vendor: ");
+        System.out.println("Enter vendor: ");
         String vendor = scanner.nextLine();
-
-        System.out.print("Enter an amount: ");
+        System.out.println("Enter amount: ");
         double amount = Double.parseDouble(scanner.nextLine());
 
-        if(!isDeposit){
+        if (!isDeposit) {
             amount = -Math.abs(amount);
         }
 
-        return new Transaction( date, time, description, vendor, amount);
+        return new Transaction(date, time, description, vendor, amount);
     }
-
 
     private static void saveTransaction() {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
-            writer.write(
-                    currentTransaction.getDate() + "|" + currentTransaction.getTime() + "|" +
-                            currentTransaction.getDescription() + "|" + currentTransaction.getVendor() + "|" +
-                               currentTransaction.getAmount()
-            );
+            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true));
+            writer.write(currentTransaction.getDate() + "|" + currentTransaction.getTime() + "|" +
+                    currentTransaction.getDescription() + "|" + currentTransaction.getVendor() + "|" +
+                    currentTransaction.getAmount());
             writer.newLine();
             writer.close();
         } catch (IOException e) {
-            System.out.println("Error Saving transaction: " + e.getMessage());
+            System.out.println("Error saving transaction: " + e.getMessage());
         }
     }
 
@@ -137,165 +123,90 @@ public class LedgerApp {
         }
     }
 
-    private static void editTransaction() {
-        if (transactions.isEmpty()) {
-            System.out.println("No transactions to edit.");
-            return;
-        }
-
-        System.out.println("\n--- Edit Transaction ---");
-        for (int i = 0; i < transactions.size(); i++) {
-            System.out.println((i + 1) + ") " + transactions.get(i));
-        }
-
-        System.out.print("Enter the number of the transaction to edit: ");
-        int choice = Integer.parseInt(scanner.nextLine());
-
-        if (choice < 1 || choice > transactions.size()) {
-            System.out.println("Invalid choice.");
-            return;
-        }
-
-        Transaction transaction = transactions.get(choice - 1);
-
-        System.out.println("Enter new description (leave blank to keep current): ");
-        String newDescription = scanner.nextLine();
-        if (!newDescription.isEmpty()) {
-            transaction.setDescription(newDescription);
-        }
-
-        System.out.println("Enter new vendor (leave blank to keep current): ");
-        String newVendor = scanner.nextLine();
-        if (!newVendor.isEmpty()) {
-            transaction.setVendor(newVendor);
-        }
-
-        System.out.println("Enter new amount (leave blank to keep current): ");
-        String newAmount = scanner.nextLine();
-        if (!newAmount.isEmpty()) {
-            transaction.setAmount(Double.parseDouble(newAmount));
-        }
-
-        saveAllTransactions();
-        System.out.println("Transaction updated successfully.");
-    }
-
-
-    private static void deleteTransaction() {
-        if (transactions.isEmpty()) {
-            System.out.println("No transactions to delete.");
-            return;
-        }
-
-        System.out.println("\n--- Delete Transaction ---");
-        for (int i = 0; i < transactions.size(); i++) {
-            System.out.println((i + 1) + ") " + transactions.get(i));
-        }
-
-        System.out.print("Enter the number of the transaction to delete: ");
-        int choice = Integer.parseInt(scanner.nextLine());
-
-        if (choice < 1 || choice > transactions.size()) {
-            System.out.println("Invalid choice.");
-            return;
-        }
-
-        transactions.remove(choice - 1);
-        saveAllTransactions();
-        System.out.println("Transaction deleted successfully.");
-    }
-
-
-    private static void summaryReport() {
-        double totalDeposits = 0;
-        double totalPayments = 0;
-        double balance = 0;
-
-        for (Transaction transaction : transactions) {
-            if (transaction.getAmount() > 0) {
-                totalDeposits += transaction.getAmount();
-            } else {
-                totalPayments += transaction.getAmount();
-            }
-            balance += transaction.getAmount();
-        }
-
-        System.out.println("\n--- Summary Report ---");
-        System.out.printf("Total Deposits: $%.2f\n", totalDeposits);
-        System.out.printf("Total Payments: $%.2f\n", Math.abs(totalPayments));
-        System.out.printf("Current Balance: $%.2f\n", balance);
-    }
-
-    private static void showLedgerScreen() {
+    private static void displayLedgerScreen() {
         String choice;
-        do{
-            System.out.println("\n---Ledger Screen---");
-            System.out.println("A) Display all transactions");
-            System.out.println("D) Display Deposits only");
-            System.out.println("P) Display Payments(Debit) only");
-            System.out.println("R) Go to Reports Menu");
-            System.out.println("H) Go back Ledger Home");
+        do {
+            System.out.println("\n--- Ledger Screen ---");
+            System.out.println("A) Display all entries");
+            System.out.println("D) Display only Deposits");
+            System.out.println("P) Display only Payments (Debits)");
+            System.out.println("R) Reports");
+            System.out.println("H) Go back Home");
             System.out.print("Choose an option: ");
-            choice = scanner.nextLine().toUpperCase();
 
-            switch (choice){
+            choice = scanner.nextLine().toUpperCase();
+            switch (choice) {
                 case "A":
                     displayAllTransactions();
                     break;
                 case "D":
-                    displayDeposits();
+                    displayAllDeposits();
                     break;
                 case "P":
-                    displayPayments();
+                    displayAllPayments();
                     break;
                 case "R":
-                    showReportsScreen();
+                    displayReportScreen();
                     break;
                 case "H":
-                    // Return to home
+                    System.out.println("Going back to Home Screen!");
                     break;
                 default:
-                    System.out.println("Invalid option. Try again.");
+                    System.out.println("Invalid option. Try again!");
             }
-
-        }while(!choice.equalsIgnoreCase("H"));
+        } while (!choice.equals("H"));
     }
 
     private static void displayAllTransactions() {
-       for(Transaction transaction: transactions){
-           System.out.println(transaction);
-       }
+        boolean found = false;
+        for (Transaction transaction : transactions) {
+            System.out.println(transaction);
+            found = true;
+        }
+        if (!found) {
+            System.out.println("No transactions found.");
+        }
     }
 
-    private static void displayDeposits() {
+    private static void displayAllDeposits() {
+        boolean found = false;
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() > 0) {
                 System.out.println(transaction);
+                found = true;
             }
+        }
+        if (!found) {
+            System.out.println("No deposits found.");
         }
     }
 
-    private static void displayPayments() {
+    private static void displayAllPayments() {
+        boolean found = false;
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() < 0) {
                 System.out.println(transaction);
+                found = true;
             }
+        }
+        if (!found) {
+            System.out.println("No payments found.");
         }
     }
 
-    private static void showReportsScreen() {
+    private static void displayReportScreen() {
         String choice;
         do {
-            System.out.println("\n--- Reports Menu ---");
+            System.out.println("\n--- Report Menu ---");
             System.out.println("1) Month To Date");
             System.out.println("2) Previous Month");
             System.out.println("3) Year To Date");
             System.out.println("4) Previous Year");
-            System.out.println("5) Search by Vendor");
+            System.out.println("5) Search By Vendor");
             System.out.println("0) Back");
             System.out.print("Choose an option: ");
-            choice = scanner.nextLine();
 
+            choice = scanner.nextLine();
             switch (choice) {
                 case "1":
                     reportMonthToDate();
@@ -313,10 +224,10 @@ public class LedgerApp {
                     searchByVendor();
                     break;
                 case "0":
-                    // Go back
+                    System.out.println("Back to Report Page!");
                     break;
                 default:
-                    System.out.println("Invalid option. Try again.");
+                    System.out.println("Invalid option. Try again!");
             }
         } while (!choice.equals("0"));
     }
@@ -407,25 +318,110 @@ public class LedgerApp {
         }
     }
 
+    private static void deleteTransaction() {
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions to delete.");
+            return;
+        }
+
+        System.out.println("\n--- Delete Transaction ---");
+        for (int i = 0; i < transactions.size(); i++) {
+            System.out.println((i + 1) + ") " + transactions.get(i));
+        }
+
+        System.out.print("Enter the number of the transaction to delete: ");
+        int choice = Integer.parseInt(scanner.nextLine());
+
+        if (choice < 1 || choice > transactions.size()) {
+            System.out.println("Invalid choice.");
+            return;
+        }
+
+        transactions.remove(choice - 1);
+        saveAllTransactions();
+        System.out.println("Transaction deleted successfully.");
+    }
+
+    private static void editTransaction() {
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions to edit.");
+            return;
+        }
+
+        System.out.println("\n--- Edit Transaction ---");
+        for (int i = 0; i < transactions.size(); i++) {
+            System.out.println((i + 1) + ") " + transactions.get(i));
+        }
+
+        System.out.print("Enter the number of the transaction to edit: ");
+        int choice = Integer.parseInt(scanner.nextLine());
+
+        if (choice < 1 || choice > transactions.size()) {
+            System.out.println("Invalid choice.");
+            return;
+        }
+
+        Transaction transaction = transactions.get(choice - 1);
+
+        System.out.println("Enter new description (leave blank to keep current): ");
+        String newDescription = scanner.nextLine();
+        if (!newDescription.isEmpty()) {
+            transaction.setDescription(newDescription);
+        }
+
+        System.out.println("Enter new vendor (leave blank to keep current): ");
+        String newVendor = scanner.nextLine();
+        if (!newVendor.isEmpty()) {
+            transaction.setVendor(newVendor);
+        }
+
+        System.out.println("Enter new amount (leave blank to keep current): ");
+        String newAmount = scanner.nextLine();
+        if (!newAmount.isEmpty()) {
+            transaction.setAmount(Double.parseDouble(newAmount));
+        }
+
+        saveAllTransactions();
+        System.out.println("Transaction updated successfully.");
+    }
+
+    private static void summaryReport() {
+        double totalDeposits = 0;
+        double totalPayments = 0;
+        double balance = 0;
+
+        for (Transaction transaction : transactions) {
+            if (transaction.getAmount() > 0) {
+                totalDeposits += transaction.getAmount();
+            } else {
+                totalPayments += transaction.getAmount();
+            }
+            balance += transaction.getAmount();
+        }
+
+        System.out.println("\n--- Summary Report ---");
+        System.out.printf("Total Deposits: $%.2f\n", totalDeposits);
+        System.out.printf("Total Payments: $%.2f\n", Math.abs(totalPayments));
+        System.out.printf("Current Balance: $%.2f\n", balance);
+    }
+
     private static void loadTransactions() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME));
-             String line;
-             while((line = reader.readLine()) != null){
-                 String[] parts = line.split("\\|");
-                 if(parts.length == 5){
-                     Transaction transaction = new Transaction(
-                             parts[0], parts[1], parts[2], parts[3], Double.parseDouble(parts[4])
-                     );
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
 
-                     transactions.add(transaction);
-                 }
-             }
-             reader.close();
-        } catch (IOException e) {
-            System.out.println("Error Loading transactions: " + e.getMessage());
+                if (parts.length == 5) {
+                    Transaction transaction = new Transaction(
+                            parts[0], parts[1], parts[2], parts[3], Double.parseDouble(parts[4])
+                    );
+                    transactions.add(transaction);
+                }
+            }
+            reader.close();
+        } catch (Exception e) {
+            System.out.println("Error loading transactions: " + e.getMessage());
         }
     }
-
-
 }
