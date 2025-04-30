@@ -203,6 +203,7 @@ public class LedgerApp {
             System.out.println("3) Year To Date");
             System.out.println("4) Previous Year");
             System.out.println("5) Search By Vendor");
+            System.out.println("6) Custom Search"); // Custom search option added
             System.out.println("0) Back");
             System.out.print("Choose an option: ");
 
@@ -222,6 +223,9 @@ public class LedgerApp {
                     break;
                 case "5":
                     searchByVendor();
+                    break;
+                case "6":
+                    customSearch(); // Custom search functionality
                     break;
                 case "0":
                     System.out.println("Back to Report Page!");
@@ -316,6 +320,33 @@ public class LedgerApp {
         if (!found) {
             System.out.println("No transactions found for this vendor.");
         }
+    }
+
+    // Custom search method
+    private static void customSearch() {
+        System.out.println("\n--- Custom Search ---");
+        System.out.print("Enter start date (YYYY-MM-DD) or leave blank: ");
+        String startDateInput = scanner.nextLine();
+        System.out.print("Enter end date (YYYY-MM-DD) or leave blank: ");
+        String endDateInput = scanner.nextLine();
+        System.out.print("Enter description or leave blank: ");
+        String descriptionInput = scanner.nextLine();
+        System.out.print("Enter vendor name or leave blank: ");
+        String vendorInput = scanner.nextLine();
+        System.out.print("Enter amount (positive for deposit, negative for payment) or leave blank: ");
+        String amountInput = scanner.nextLine();
+
+        LocalDate startDate = startDateInput.isEmpty() ? null : LocalDate.parse(startDateInput);
+        LocalDate endDate = endDateInput.isEmpty() ? null : LocalDate.parse(endDateInput);
+        Double amount = amountInput.isEmpty() ? null : Double.parseDouble(amountInput);
+
+        transactions.stream()
+                .filter(transaction -> (startDate == null || LocalDate.parse(transaction.getDate()).isAfter(startDate)) &&
+                        (endDate == null || LocalDate.parse(transaction.getDate()).isBefore(endDate)) &&
+                        (descriptionInput.isEmpty() || transaction.getDescription().contains(descriptionInput)) &&
+                        (vendorInput.isEmpty() || transaction.getVendor().equalsIgnoreCase(vendorInput)) &&
+                        (amount == null || transaction.getAmount() == amount))
+                .forEach(System.out::println);
     }
 
     private static void deleteTransaction() {
