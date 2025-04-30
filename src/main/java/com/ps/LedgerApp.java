@@ -63,17 +63,25 @@ public class LedgerApp {
     }
 
     private static void addDeposit() {
-        currentTransaction = createTransaction(true);
-        saveTransaction();
-        transactions.add(currentTransaction);
-        System.out.println("Deposit added successfully!");
+        try {
+            currentTransaction = createTransaction(true);
+            saveTransaction();
+            transactions.add(currentTransaction);
+            System.out.println("Deposit added successfully!");
+        } catch (Exception e) {
+            System.out.println("Error adding deposit: " + e.getMessage());
+        }
     }
 
     private static void makePayment() {
-        currentTransaction = createTransaction(false);
-        saveTransaction();
-        transactions.add(currentTransaction);
-        System.out.println("Payment made successfully!");
+        try {
+            currentTransaction = createTransaction(false);
+            saveTransaction();
+            transactions.add(currentTransaction);
+            System.out.println("Payment made successfully!");
+        } catch (Exception e) {
+            System.out.println("Error making payment: " + e.getMessage());
+        }
     }
 
     private static Transaction createTransaction(boolean isDeposit) {
@@ -85,8 +93,18 @@ public class LedgerApp {
         String description = scanner.nextLine();
         System.out.println("Enter vendor: ");
         String vendor = scanner.nextLine();
-        System.out.println("Enter amount: ");
-        double amount = Double.parseDouble(scanner.nextLine());
+        double amount = 0;
+
+        boolean validAmount = false;
+        while (!validAmount) {
+            System.out.println("Enter amount: ");
+            try {
+                amount = Double.parseDouble(scanner.nextLine());
+                validAmount = true; // Amount parsed successfully, break the loop
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a valid amount.");
+            }
+        }
 
         if (!isDeposit) {
             amount = -Math.abs(amount);
@@ -96,28 +114,24 @@ public class LedgerApp {
     }
 
     private static void saveTransaction() {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
             writer.write(currentTransaction.getDate() + "|" + currentTransaction.getTime() + "|" +
                     currentTransaction.getDescription() + "|" + currentTransaction.getVendor() + "|" +
                     currentTransaction.getAmount());
             writer.newLine();
-            writer.close();
         } catch (IOException e) {
             System.out.println("Error saving transaction: " + e.getMessage());
         }
     }
 
     private static void saveAllTransactions() {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
             for (Transaction t : transactions) {
                 writer.write(t.getDate() + "|" + t.getTime() + "|" +
                         t.getDescription() + "|" + t.getVendor() + "|" +
                         t.getAmount());
                 writer.newLine();
             }
-            writer.close();
         } catch (IOException e) {
             System.out.println("Error saving transactions: " + e.getMessage());
         }
@@ -237,203 +251,271 @@ public class LedgerApp {
     }
 
     private static void reportMonthToDate() {
-        LocalDate today = LocalDate.now();
-        LocalDate start = today.withDayOfMonth(1);
-        boolean found = false;
+        try {
+            LocalDate today = LocalDate.now();
+            LocalDate start = today.withDayOfMonth(1);
+            boolean found = false;
 
-        for (Transaction transaction : transactions) {
-            LocalDate date = LocalDate.parse(transaction.getDate());
-            if (!date.isBefore(start)) {
-                System.out.println(transaction);
-                found = true;
+            for (Transaction transaction : transactions) {
+                LocalDate date = LocalDate.parse(transaction.getDate());
+                if (!date.isBefore(start)) {
+                    System.out.println(transaction);
+                    found = true;
+                }
             }
-        }
-        if (!found) {
-            System.out.println("No transactions for this month.");
+            if (!found) {
+                System.out.println("No transactions for this month.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating Month-To-Date report: " + e.getMessage());
         }
     }
 
     private static void reportPreviousMonth() {
-        LocalDate today = LocalDate.now();
-        LocalDate firstDay = today.minusMonths(1).withDayOfMonth(1);
-        LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
-        boolean found = false;
+        try {
+            LocalDate today = LocalDate.now();
+            LocalDate firstDay = today.minusMonths(1).withDayOfMonth(1);
+            LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
+            boolean found = false;
 
-        for (Transaction transaction : transactions) {
-            LocalDate date = LocalDate.parse(transaction.getDate());
-            if (!date.isBefore(firstDay) && !date.isAfter(lastDay)) {
-                System.out.println(transaction);
-                found = true;
+            for (Transaction transaction : transactions) {
+                LocalDate date = LocalDate.parse(transaction.getDate());
+                if (!date.isBefore(firstDay) && !date.isAfter(lastDay)) {
+                    System.out.println(transaction);
+                    found = true;
+                }
             }
-        }
-        if (!found) {
-            System.out.println("No transactions for this period.");
+            if (!found) {
+                System.out.println("No transactions for this period.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating Previous Month report: " + e.getMessage());
         }
     }
 
     private static void reportYearToDate() {
-        LocalDate today = LocalDate.now();
-        LocalDate start = today.withDayOfYear(1);
-        boolean found = false;
+        try {
+            LocalDate today = LocalDate.now();
+            LocalDate start = today.withDayOfYear(1);
+            boolean found = false;
 
-        for (Transaction transaction : transactions) {
-            LocalDate date = LocalDate.parse(transaction.getDate());
-            if (!date.isBefore(start)) {
-                System.out.println(transaction);
-                found = true;
+            for (Transaction transaction : transactions) {
+                LocalDate date = LocalDate.parse(transaction.getDate());
+                if (!date.isBefore(start)) {
+                    System.out.println(transaction);
+                    found = true;
+                }
             }
-        }
-        if (!found) {
-            System.out.println("No transactions for this period.");
+            if (!found) {
+                System.out.println("No transactions for this period.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating Year-To-Date report: " + e.getMessage());
         }
     }
 
     private static void reportPreviousYear() {
-        LocalDate today = LocalDate.now();
-        LocalDate firstDay = today.minusYears(1).withDayOfYear(1);
-        LocalDate lastDay = firstDay.withDayOfYear(firstDay.lengthOfYear());
-        boolean found = false;
+        try {
+            LocalDate today = LocalDate.now();
+            LocalDate firstDay = today.minusYears(1).withDayOfYear(1);
+            LocalDate lastDay = firstDay.withDayOfYear(firstDay.lengthOfYear());
+            boolean found = false;
 
-        for (Transaction transaction : transactions) {
-            LocalDate date = LocalDate.parse(transaction.getDate());
-            if (!date.isBefore(firstDay) && !date.isAfter(lastDay)) {
-                System.out.println(transaction);
-                found = true;
+            for (Transaction transaction : transactions) {
+                LocalDate date = LocalDate.parse(transaction.getDate());
+                if (!date.isBefore(firstDay) && !date.isAfter(lastDay)) {
+                    System.out.println(transaction);
+                    found = true;
+                }
             }
-        }
-        if (!found) {
-            System.out.println("No transactions for this period.");
+            if (!found) {
+                System.out.println("No transactions for this period.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating Previous Year report: " + e.getMessage());
         }
     }
 
     private static void searchByVendor() {
-        System.out.print("Enter vendor name: ");
-        String vendorInput = scanner.nextLine();
-        boolean found = false;
+        try {
+            System.out.print("Enter vendor name: ");
+            String vendorInput = scanner.nextLine();
+            boolean found = false;
 
-        for (Transaction transaction : transactions) {
-            if (transaction.getVendor().equalsIgnoreCase(vendorInput)) {
-                System.out.println(transaction);
-                found = true;
+            for (Transaction transaction : transactions) {
+                if (transaction.getVendor().equalsIgnoreCase(vendorInput)) {
+                    System.out.println(transaction);
+                    found = true;
+                }
             }
-        }
-        if (!found) {
-            System.out.println("No transactions found for this vendor.");
+            if (!found) {
+                System.out.println("No transactions found for this vendor.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error searching by vendor: " + e.getMessage());
         }
     }
 
     // Custom search method
     private static void customSearch() {
-        System.out.println("\n--- Custom Search ---");
-        System.out.print("Enter start date (YYYY-MM-DD) or leave blank: ");
-        String startDateInput = scanner.nextLine();
-        System.out.print("Enter end date (YYYY-MM-DD) or leave blank: ");
-        String endDateInput = scanner.nextLine();
-        System.out.print("Enter description or leave blank: ");
-        String descriptionInput = scanner.nextLine();
-        System.out.print("Enter vendor name or leave blank: ");
-        String vendorInput = scanner.nextLine();
-        System.out.print("Enter amount (positive for deposit, negative for payment) or leave blank: ");
-        String amountInput = scanner.nextLine();
+        try {
+            System.out.println("\n--- Custom Search ---");
+            System.out.print("Enter start date (YYYY-MM-DD) or leave blank: ");
+            String startDateInput = scanner.nextLine();
+            System.out.print("Enter end date (YYYY-MM-DD) or leave blank: ");
+            String endDateInput = scanner.nextLine();
+            System.out.print("Enter description or leave blank: ");
+            String descriptionInput = scanner.nextLine();
+            System.out.print("Enter vendor name or leave blank: ");
+            String vendorInput = scanner.nextLine();
+            System.out.print("Enter amount (positive for deposit, negative for payment) or leave blank: ");
+            String amountInput = scanner.nextLine();
 
-        LocalDate startDate = startDateInput.isEmpty() ? null : LocalDate.parse(startDateInput);
-        LocalDate endDate = endDateInput.isEmpty() ? null : LocalDate.parse(endDateInput);
-        Double amount = amountInput.isEmpty() ? null : Double.parseDouble(amountInput);
+            LocalDate startDate = startDateInput.isEmpty() ? null : LocalDate.parse(startDateInput);
+            LocalDate endDate = endDateInput.isEmpty() ? null : LocalDate.parse(endDateInput);
+            Double amount = amountInput.isEmpty() ? null : Double.parseDouble(amountInput);
 
-        transactions.stream()
-                .filter(transaction -> (startDate == null || LocalDate.parse(transaction.getDate()).isAfter(startDate)) &&
-                        (endDate == null || LocalDate.parse(transaction.getDate()).isBefore(endDate)) &&
-                        (descriptionInput.isEmpty() || transaction.getDescription().contains(descriptionInput)) &&
-                        (vendorInput.isEmpty() || transaction.getVendor().equalsIgnoreCase(vendorInput)) &&
-                        (amount == null || transaction.getAmount() == amount))
-                .forEach(System.out::println);
+            boolean found = false;
+            // Iterate over all transactions
+            for (Transaction transaction : transactions) {
+                LocalDate transactionDate = LocalDate.parse(transaction.getDate());
+                boolean matches = true;
+
+                // Check date range
+                if (startDate != null && transactionDate.isBefore(startDate)) {
+                    matches = false;
+                }
+                if (endDate != null && transactionDate.isAfter(endDate)) {
+                    matches = false;
+                }
+
+                // Check description
+                if (!descriptionInput.isEmpty() && !transaction.getDescription().contains(descriptionInput)) {
+                    matches = false;
+                }
+
+                // Check vendor
+                if (!vendorInput.isEmpty() && !transaction.getVendor().equalsIgnoreCase(vendorInput)) {
+                    matches = false;
+                }
+
+                // Check amount
+                if (amount != null && transaction.getAmount() != amount) {
+                    matches = false;
+                }
+
+                // If all conditions match, print the transaction
+                if (matches) {
+                    System.out.println(transaction);
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                System.out.println("No transactions found matching the criteria.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error with custom search: " + e.getMessage());
+        }
     }
 
     private static void deleteTransaction() {
-        if (transactions.isEmpty()) {
-            System.out.println("No transactions to delete.");
-            return;
+        try {
+            if (transactions.isEmpty()) {
+                System.out.println("No transactions to delete.");
+                return;
+            }
+
+            System.out.println("\n--- Delete Transaction ---");
+            for (int i = 0; i < transactions.size(); i++) {
+                System.out.println((i + 1) + ") " + transactions.get(i));
+            }
+
+            System.out.print("Enter the number of the transaction to delete: ");
+            int choice = Integer.parseInt(scanner.nextLine());
+
+            if (choice < 1 || choice > transactions.size()) {
+                System.out.println("Invalid choice.");
+                return;
+            }
+
+            transactions.remove(choice - 1);
+            saveAllTransactions();
+            System.out.println("Transaction deleted successfully.");
+        } catch (Exception e) {
+            System.out.println("Error deleting transaction: " + e.getMessage());
         }
-
-        System.out.println("\n--- Delete Transaction ---");
-        for (int i = 0; i < transactions.size(); i++) {
-            System.out.println((i + 1) + ") " + transactions.get(i));
-        }
-
-        System.out.print("Enter the number of the transaction to delete: ");
-        int choice = Integer.parseInt(scanner.nextLine());
-
-        if (choice < 1 || choice > transactions.size()) {
-            System.out.println("Invalid choice.");
-            return;
-        }
-
-        transactions.remove(choice - 1);
-        saveAllTransactions();
-        System.out.println("Transaction deleted successfully.");
     }
 
     private static void editTransaction() {
-        if (transactions.isEmpty()) {
-            System.out.println("No transactions to edit.");
-            return;
+        try {
+            if (transactions.isEmpty()) {
+                System.out.println("No transactions to edit.");
+                return;
+            }
+
+            System.out.println("\n--- Edit Transaction ---");
+            for (int i = 0; i < transactions.size(); i++) {
+                System.out.println((i + 1) + ") " + transactions.get(i));
+            }
+
+            System.out.print("Enter the number of the transaction to edit: ");
+            int choice = Integer.parseInt(scanner.nextLine());
+
+            if (choice < 1 || choice > transactions.size()) {
+                System.out.println("Invalid choice.");
+                return;
+            }
+
+            Transaction transaction = transactions.get(choice - 1);
+
+            System.out.println("Enter new description (leave blank to keep current): ");
+            String newDescription = scanner.nextLine();
+            if (!newDescription.isEmpty()) {
+                transaction.setDescription(newDescription);
+            }
+
+            System.out.println("Enter new vendor (leave blank to keep current): ");
+            String newVendor = scanner.nextLine();
+            if (!newVendor.isEmpty()) {
+                transaction.setVendor(newVendor);
+            }
+
+            System.out.println("Enter new amount (leave blank to keep current): ");
+            String newAmount = scanner.nextLine();
+            if (!newAmount.isEmpty()) {
+                transaction.setAmount(Double.parseDouble(newAmount));
+            }
+
+            saveAllTransactions();
+            System.out.println("Transaction updated successfully.");
+        } catch (Exception e) {
+            System.out.println("Error editing transaction: " + e.getMessage());
         }
-
-        System.out.println("\n--- Edit Transaction ---");
-        for (int i = 0; i < transactions.size(); i++) {
-            System.out.println((i + 1) + ") " + transactions.get(i));
-        }
-
-        System.out.print("Enter the number of the transaction to edit: ");
-        int choice = Integer.parseInt(scanner.nextLine());
-
-        if (choice < 1 || choice > transactions.size()) {
-            System.out.println("Invalid choice.");
-            return;
-        }
-
-        Transaction transaction = transactions.get(choice - 1);
-
-        System.out.println("Enter new description (leave blank to keep current): ");
-        String newDescription = scanner.nextLine();
-        if (!newDescription.isEmpty()) {
-            transaction.setDescription(newDescription);
-        }
-
-        System.out.println("Enter new vendor (leave blank to keep current): ");
-        String newVendor = scanner.nextLine();
-        if (!newVendor.isEmpty()) {
-            transaction.setVendor(newVendor);
-        }
-
-        System.out.println("Enter new amount (leave blank to keep current): ");
-        String newAmount = scanner.nextLine();
-        if (!newAmount.isEmpty()) {
-            transaction.setAmount(Double.parseDouble(newAmount));
-        }
-
-        saveAllTransactions();
-        System.out.println("Transaction updated successfully.");
     }
 
     private static void summaryReport() {
-        double totalDeposits = 0;
-        double totalPayments = 0;
-        double balance = 0;
+        try {
+            double totalDeposits = 0;
+            double totalPayments = 0;
+            double balance = 0;
 
-        for (Transaction transaction : transactions) {
-            if (transaction.getAmount() > 0) {
-                totalDeposits += transaction.getAmount();
-            } else {
-                totalPayments += transaction.getAmount();
+            for (Transaction transaction : transactions) {
+                if (transaction.getAmount() > 0) {
+                    totalDeposits += transaction.getAmount();
+                } else {
+                    totalPayments += transaction.getAmount();
+                }
+                balance += transaction.getAmount();
             }
-            balance += transaction.getAmount();
-        }
 
-        System.out.println("\n--- Summary Report ---");
-        System.out.printf("Total Deposits: $%.2f\n", totalDeposits);
-        System.out.printf("Total Payments: $%.2f\n", Math.abs(totalPayments));
-        System.out.printf("Current Balance: $%.2f\n", balance);
+            System.out.println("\n--- Summary Report ---");
+            System.out.printf("Total Deposits: $%.2f\n", totalDeposits);
+            System.out.printf("Total Payments: $%.2f\n", Math.abs(totalPayments));
+            System.out.printf("Current Balance: $%.2f\n", balance);
+        } catch (Exception e) {
+            System.out.println("Error generating summary report: " + e.getMessage());
+        }
     }
 
     private static void loadTransactions() {
@@ -452,7 +534,7 @@ public class LedgerApp {
             }
             reader.close();
         } catch (Exception e) {
-            System.out.println("Error loading transactions: " + e.getMessage());
+            System.out.println("Error loading transactions from " + FILE_NAME + ": " + e.getMessage());
         }
     }
 }
