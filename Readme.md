@@ -72,7 +72,8 @@ In addition to the core functionality, the **Ledger App** includes the following
 
 ## 💬 Interesting Piece of Code
 
-One interesting part of the project is how transactions are filtered by date range for reports. This is handled by the following method that allows filtering based on a **start date** and **end date**:
+One important part of the project is how transactions are saved to the CSV file. This is handled by the following method, which appends the current transaction’s details—including date, time, description, vendor, and amount—to the file in a structured format.
+
 
 ```java
 private static void saveTransaction() {
