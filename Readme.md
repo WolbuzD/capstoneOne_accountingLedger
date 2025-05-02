@@ -47,19 +47,26 @@ In addition to the core functionality, the **Ledger App** includes the following
 ## 📸 Screenshots
 
 ### 🏠 Main Menu
-![Main Menu](screenshots/menu.png)
+![Main Menu](screenshots/homeScreen.png)
 
-### 📊 Transaction View
-![Transaction View](screenshots/transactions.png)
+### 💵 Add Deposit 
+![Add Transaction](screenshots/addDeposit.png)
 
-### 💵 Summary Report
-![Summary Report](screenshots/summary.png)
+### 💵 Make Payment
+![Add Transaction](screenshots/makePayment.png)
 
-### 📝 Edit Transaction Screen
-![Edit Transaction](screenshots/edit_transaction.png)
+### 📒 Ledger Screen –> View All Transactions
+![Ledger Screen](screenshots/displayAllTransactions.png)
+
+### 📊 Report Screen – > Summary Report
+![Report Screen](screenshots/summaryReport.png)
+
+### 📝 Edit/Delete Transaction
+![Edit or Delete Transaction](screenshots/editTransaction.png)
 
 ### 🔍 Custom Search Screen
-![Custom Search](screenshots/custom_search.png)
+![Custom Search](screenshots/customSearch.png)
+
 
 ---
 

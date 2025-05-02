@@ -54,7 +54,7 @@ public class LedgerApp {
         System.out.println("\n---- Home Screen ----");
         System.out.println("D) Add Deposit");
         System.out.println("P) Make a Payment (Debit)");
-        System.out.println("L) Ledger");
+        System.out.println("L) Ledger Screen");
         System.out.println("E) Edit a Transaction");
         System.out.println("DEL) Delete a Transaction");
         System.out.println("S) Summary Report");
@@ -144,7 +144,7 @@ public class LedgerApp {
             System.out.println("A) Display all entries");
             System.out.println("D) Display only Deposits");
             System.out.println("P) Display only Payments (Debits)");
-            System.out.println("R) Reports");
+            System.out.println("R) Reports Screen");
             System.out.println("H) Go back Home");
             System.out.print("Choose an option: ");
 
@@ -360,10 +360,8 @@ public class LedgerApp {
     private static void customSearch() {
         try {
             System.out.println("\n--- Custom Search ---");
-            System.out.print("Enter start date (YYYY-MM-DD) or leave blank: ");
-            String startDateInput = scanner.nextLine();
-            System.out.print("Enter end date (YYYY-MM-DD) or leave blank: ");
-            String endDateInput = scanner.nextLine();
+            System.out.print("Enter transaction date (YYYY-MM-DD) or leave blank: ");
+            String dateInput = scanner.nextLine();
             System.out.print("Enter description or leave blank: ");
             String descriptionInput = scanner.nextLine();
             System.out.print("Enter vendor name or leave blank: ");
@@ -371,44 +369,21 @@ public class LedgerApp {
             System.out.print("Enter amount (positive for deposit, negative for payment) or leave blank: ");
             String amountInput = scanner.nextLine();
 
-            LocalDate startDate = startDateInput.isEmpty() ? null : LocalDate.parse(startDateInput);
-            LocalDate endDate = endDateInput.isEmpty() ? null : LocalDate.parse(endDateInput);
+            LocalDate searchDate = dateInput.isEmpty() ? null : LocalDate.parse(dateInput);
             Double amount = amountInput.isEmpty() ? null : Double.parseDouble(amountInput);
 
             boolean found = false;
-            // Iterate over all transactions
-            for (Transaction transaction : transactions) {
-                LocalDate transactionDate = LocalDate.parse(transaction.getDate());
-                boolean matches = true;
 
-                // Check date range
-                if (startDate != null && transactionDate.isBefore(startDate)) {
-                    matches = false;
-                }
-                if (endDate != null && transactionDate.isAfter(endDate)) {
-                    matches = false;
-                }
+            for (Transaction t : transactions) {
+                LocalDate txDate = LocalDate.parse(t.getDate());
 
-                // Check description
-                if (!descriptionInput.isEmpty() && !transaction.getDescription().contains(descriptionInput)) {
-                    matches = false;
-                }
+                if (searchDate != null && !txDate.equals(searchDate)) continue;
+                if (!descriptionInput.isEmpty() && !t.getDescription().toLowerCase().contains(descriptionInput.toLowerCase())) continue;
+                if (!vendorInput.isEmpty() && !t.getVendor().toLowerCase().contains(vendorInput.toLowerCase())) continue;
+                if (amount != null && Double.compare(t.getAmount(), amount) != 0) continue;
 
-                // Check vendor
-                if (!vendorInput.isEmpty() && !transaction.getVendor().equalsIgnoreCase(vendorInput)) {
-                    matches = false;
-                }
-
-                // Check amount
-                if (amount != null && transaction.getAmount() != amount) {
-                    matches = false;
-                }
-
-                // If all conditions match, print the transaction
-                if (matches) {
-                    System.out.println(transaction);
-                    found = true;
-                }
+                System.out.println(t);
+                found = true;
             }
 
             if (!found) {
@@ -418,6 +393,7 @@ public class LedgerApp {
             System.out.println("Error with custom search: " + e.getMessage());
         }
     }
+
 
     private static void deleteTransaction() {
         try {
