@@ -360,8 +360,10 @@ public class LedgerApp {
     private static void customSearch() {
         try {
             System.out.println("\n--- Custom Search ---");
-            System.out.print("Enter transaction date (YYYY-MM-DD) or leave blank: ");
-            String dateInput = scanner.nextLine();
+            System.out.print("Enter start date (YYYY-MM-DD) or leave blank: ");
+            String startDateInput = scanner.nextLine();
+            System.out.print("Enter end date (YYYY-MM-DD) or leave blank: ");
+            String endDateInput = scanner.nextLine();
             System.out.print("Enter description or leave blank: ");
             String descriptionInput = scanner.nextLine();
             System.out.print("Enter vendor name or leave blank: ");
@@ -369,7 +371,8 @@ public class LedgerApp {
             System.out.print("Enter amount (positive for deposit, negative for payment) or leave blank: ");
             String amountInput = scanner.nextLine();
 
-            LocalDate searchDate = dateInput.isEmpty() ? null : LocalDate.parse(dateInput);
+            LocalDate startDate = startDateInput.isEmpty() ? null : LocalDate.parse(startDateInput);
+            LocalDate endDate = endDateInput.isEmpty() ? null : LocalDate.parse(endDateInput);
             Double amount = amountInput.isEmpty() ? null : Double.parseDouble(amountInput);
 
             boolean found = false;
@@ -377,7 +380,8 @@ public class LedgerApp {
             for (Transaction t : transactions) {
                 LocalDate txDate = LocalDate.parse(t.getDate());
 
-                if (searchDate != null && !txDate.equals(searchDate)) continue;
+                if (startDate != null && txDate.isBefore(startDate)) continue;
+                if (endDate != null && txDate.isAfter(endDate)) continue;
                 if (!descriptionInput.isEmpty() && !t.getDescription().toLowerCase().contains(descriptionInput.toLowerCase())) continue;
                 if (!vendorInput.isEmpty() && !t.getVendor().toLowerCase().contains(vendorInput.toLowerCase())) continue;
                 if (amount != null && Double.compare(t.getAmount(), amount) != 0) continue;
@@ -393,6 +397,7 @@ public class LedgerApp {
             System.out.println("Error with custom search: " + e.getMessage());
         }
     }
+
 
 
     private static void deleteTransaction() {
